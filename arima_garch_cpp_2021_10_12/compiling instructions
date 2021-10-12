@@ -1,0 +1,12 @@
+g++  -c matrix.cc poly.cc abrand.cc timeseries.cc svm.cc garch.cc main.cpp -DUSE_LAPACK  -lgsl -lgslcblas -lm -lblas -llapack -llapacke
+
+
+GSL
+g++ -o  main.cpp matrix.o poly.o abrand.o timeseries.o svm.o garch.o -DUSE_LAPACK -lgsl -lgslcblas -lm
+LAPACK
+g++ -o  main.cpp matrix.o poly.o abrand.o timeseries.o svm.o garch.o -DUSE_LAPACK -lgsl -lgslcblas -lm -lblas -llapack -llapacke
+
+esta es:
+g++ -o  main main.o matrix.o poly.o abrand.o timeseries.o svm.o garch.o -DUSE_LAPACK -lgsl -lgslcblas -lm -lblas -llapack -llapacke
+
+needs lapack/lapacke, gsl
