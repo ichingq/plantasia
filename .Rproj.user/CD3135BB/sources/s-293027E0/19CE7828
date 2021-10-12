@@ -1,0 +1,24 @@
+{
+    "id": "19CE7828",
+    "path": "C:/Users/Iching Quares/Desktop/feto/ARIMA+GARCH EURUSD/arimagarch_function.R",
+    "project_path": null,
+    "type": "r_source",
+    "hash": "0",
+    "contents": "",
+    "dirty": false,
+    "created": 1633891277807.0,
+    "source_on_save": false,
+    "relative_order": 3,
+    "properties": {
+        "cursorPosition": "142,3",
+        "scrollLine": "130"
+    },
+    "folds": "2|34|116|0|\n",
+    "lastKnownWriteTime": 1633387061,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1633891301897,
+    "read_only": false,
+    "read_only_alternatives": []
+}
