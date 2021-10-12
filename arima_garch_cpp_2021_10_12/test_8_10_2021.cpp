@@ -75,7 +75,7 @@ int main() {
 
  	timeseries->data = data;
  	timeseries->missing = missing;
- 	timeseries->n=198;
+ 	timeseries->n=198; //this n should be dynamic
  
  	n = timeseries->GetN();
  	mean = timeseries->SampleMean();
