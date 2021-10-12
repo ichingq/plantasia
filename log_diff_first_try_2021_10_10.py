@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 from pprint import pprint
 
-imported_ts = pd.read_csv("get_close_dump.csv", header = None)
+imported_ts = pd.read_csv("chop_chop_dump.csv", header = None)
 
 current_ts = np.log(imported_ts) - np.log(imported_ts.shift(1))
 current_ts[0][0] = 0
