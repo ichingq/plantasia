@@ -1,20 +1,15 @@
-# 0. Install/load libraries ----
+# Install/load libraries
 source(file="InstallOrLoadLibraries.r")
 #Import timeseries,it should be clean and processed already
 imported_ts = read.ts("log_diff_dump.csv", header = FALSE)
 
-arimagarch <- function(fxrates){
-  fxrates000<-fxrates
-  
-  # Create the forecasts vector to store the predictions and the degrees
-  # of freedom of the t distribution
-  # Get cumulative standard deviation using runSD - NOT USING THIS
+arimagarch <- function(current_timeseries){
 
-  forecasts <- vector(mode="character", length=1)
-  ind <- vector(mode="numeric", length=100)
+  forecasts <- vector(mode="character", length=1)  # Create the forecasts vector to store the predictions
+  ind <- vector(mode="numeric", length=100) #I don't remember why this is needed, but it doesn't work without it
   df0<-10 #fitdistr(x, "t") // Assuming a t dist for the residuals of ARIMA, 
   #                         // to compensate for fat tails on the dist, this can ba improved
-  fixed.pars.df0=list(shape=df0)
+  fixed.pars.df0=list(shape=df0) #The degress of freedom need to be stored like this
   
     
     # Fit the ARIMA model
@@ -25,16 +20,16 @@ arimagarch <- function(fxrates){
         next
       }
       
-      arimaFit = tryCatch( arima(fxrates000, order=c(p, 0, q)),
+      arimaFit = tryCatch( arima(current_timeseries, order=c(p, 0, q)),
                            error=function( err ) FALSE,
                            warning=function( err ) FALSE )  #running arima() with the current (p,q) with some error catching functions
       
       if( !is.logical( arimaFit ) ) {  #If arima model converge:
         current.aic <- AIC(arimaFit) #save the AIC of the current model
-        if (current.aic < final.aic) {  #If current model AIC is less than the one previously stored, update variables
+        if (current.aic < final.aic) {  #If the AIC of the current model is less than the one previously stored, update variables
           final.aic <- current.aic
           final.order <- c(p, 0, q)
-          final.arima <- arima(fxrates000, order=final.order)
+          final.arima <- arima(current_timeseries, order=final.order)
         }
       } else {
         next
@@ -42,7 +37,9 @@ arimagarch <- function(fxrates){
     }
     
     # Specify and fit the GARCH(1,1) model, assuming t distribution 
-    # with 10 degrees of freedom
+    # with 10 degrees of freedom, the choice of degrees of freedom is arbitrary at this point
+    # for a better fit try the model with several choices for the degrees of freedom and choose the
+    # one that reduces the log-likelihood. For now I haven't done it.
     
     
     spec = ugarchspec(
@@ -53,7 +50,7 @@ arimagarch <- function(fxrates){
     ) #setting the specifications of the model in the variable spec, that's how rugarch library works
     fit = tryCatch(
       ugarchfit(
-        spec, fxrates000.0.Off.set, solver = 'hybrid'
+        spec, current_timeseries.0.Off.set, solver = 'hybrid'
       ), error=function(e) e, warning=function(w) w
     )  #running ugarchfit() with some error catching functions
     
@@ -84,8 +81,8 @@ arimagarch <- function(fxrates){
 arimagarch(imported_ts) #just running the function with the imported timeseries
 
 
-#It should be checked if the sereis shows autocorrelation before running the function
-#using an auto correlation test
-#like the Ljung-Box test or ACF and PACF plots
+#It should be checked if the series shows autocorrelation before running the function
+#using an auto correlation test like the Ljung-Box test or ACF and PACF plots
+#Something like:
 #Box.test(imported_ts, lag = 1, type = c("Box-Pierce", "Ljung-Box"), fitdf = 0)
 
