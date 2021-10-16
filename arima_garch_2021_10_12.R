@@ -1,6 +1,11 @@
-# Install/load libraries
+# Install/load libraries 
+#If it's the first time running remember to go into the file InstallOrLoadLibraries
+#and change "ind.install0<-FALSE" to "ind.install0<-TRUE" after the first time can be switch back to FALSE
 source(file="InstallOrLoadLibraries.r")
-#Import timeseries,it should be clean and processed already
+#Import timeseries,it should be clean and processed already.
+#Remember to check the first data entry of the timeseries,
+#an usual error after applying a diff to a timeseries
+#is that the first term is N/A
 imported_ts = read.ts("log_diff_dump.csv", header = FALSE)
 
 arimagarch <- function(current_timeseries){
