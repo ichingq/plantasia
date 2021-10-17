@@ -62,7 +62,7 @@ arimagarch <- function(current_timeseries){
  
     
     if(is(fit, "warning")) { #If GARCH(1,1) does not converge save in forecast vector
-                             # the 1 step forecast and the sd of the residuals
+                             # the 1 step ARIMA forecast and the sd of the residuals
 
       forecast_arima = forecast(final.arima,1) #get 1 step forecast
       forecast_arima_mean = forecast_arima[["mean"]] #save the forecast
