@@ -1,21 +1,27 @@
 import csv
-import ccxt  # noqa: E402
+import ccxt  
 
-print('CCXT Version:', ccxt.__version__)
+#nothing to special happening here
+#using ccxt to fetch  data from binance API
+#and write in csv
 
-exchange = ccxt.binanceusdm()
+def cctx_export():
 
-markKlines = exchange.fetchMarkOHLCV(
-    symbol='ETH/USDT',
-    timeframe='1d',
-    params={"price": 'mark'}
-)
+	print('CCXT Version:', ccxt.__version__)
 
-dump = markKlines
+	exchange = ccxt.binanceusdm()
+	print(exchange)
 
-with open('cctx_dump.csv', 'w') as f:
- writer = csv.writer(f)
- writer.writerows(dump)
+	ohlcv_ts = exchange.fetchMarkOHLCV(
+		symbol='ETH/USDT',
+		timeframe='1d',
+		params={"price": 'mark'}
+		)
 
+	dump = ohlcv_ts
 
-#pprint(indexKlines)
+	with open('cctx_dump.csv', 'w') as f:
+		writer = csv.writer(f)
+		writer.writerows(dump)
+	return
+#cctx_export()

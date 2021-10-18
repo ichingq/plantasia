@@ -1,18 +1,18 @@
 import pandas as pd
-import numpy as np
-from pprint import pprint
 
+#imported_ts = pd.read_csv("get_close_dump.csv", header = None)
 
-imported_ts = pd.read_csv("get_close_dump.csv", header = None)
-length = imported_ts.size
-#pprint(length)
+def chop_chop(current_ts, new_dim, lag): #there should be some restrain in these numbers
+	#new_dim : new dimension of the chopped timeserie
+	#lag: lags from last data point
+	length = current_ts.size # size of the timeseries
+	if new_dim + lag > length:
+		pprint("wrong dimensions")
+		return 
 
-new_dim = 30 #this shouldn't be fixed
-lag = 200     #this either
+	chop_ts = current_ts[length - new_dim - lag: length - lag]
+	return chop_ts
 
-chop_ts = imported_ts[length - new_dim - lag: length - lag]
+#dump = chop_chop(imported_ts, 100, 200) 
 
-
-#pprint(chop_ts)
-dump = chop_ts
-dump.to_csv('chop_chop_dump.csv', index=False, header = None)
+#dump.to_csv('chop_chop_dump.csv', index=False, header = None)
