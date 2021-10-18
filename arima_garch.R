@@ -7,10 +7,10 @@ source(file="InstallOrLoadLibraries.r")
 #an usual error after applying a diff to a timeseries
 #is that the first term is N/A
 imported_ts = read.ts("log_diff_dump.csv", header = FALSE)
-
+  
 arimagarch <- function(current_timeseries){
 
-  forecasts <- vector(mode="character", length=1)  # Create the forecasts vector to store the predictions
+  forecasts <- vector(mode="numeric", length=3)  # Create the forecasts vector to store the predictions
   ind <- vector(mode="numeric", length=100) #I don't remember why this is needed, but it doesn't work without it
   df0<-10 #fitdistr(x, "t") // Assuming a t dist for the residuals of ARIMA, 
   #                         // to compensate for fat tails on the dist, this can ba improved
@@ -80,7 +80,7 @@ arimagarch <- function(current_timeseries){
     }
   
     filename = "current_forecast.csv" #the name of the file that's where forecast vector will be outputed
-    write.csv(forecasts[1], file=filename, row.names=FALSE) #write forecast vector on the file named after filename
+    write.table(forecasts[1], file=filename, row.names=FALSE,  col.names=FALSE, quote=FALSE) #write forecast vector on the file named after filename
   return(1) 
 }
 arimagarch(imported_ts) #just running the function with the imported timeseries
