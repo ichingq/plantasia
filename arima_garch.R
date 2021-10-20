@@ -53,17 +53,17 @@ arimagarch <- function(current_timeseries){
       distribution.model="std",
       fixed.pars=fixed.pars.df0
     ) #setting the specifications of the model in the variable spec, that's how rugarch library works
-    fit = tryCatch(
-      ugarchfit(
-        spec, current_timeseries.0.Off.set, solver = 'hybrid'
-      ), error=function(e) e, warning=function(w) w
+    #fit = tryCatch(
+    #  ugarchfit(
+    #    spec, current_timeseries.0.Off.set, solver = 'hybrid'
+    #  ), error=function(e) e, warning=function(w) w
     )  #running ugarchfit() with some error catching functions
     
  
     
-    if(is(fit, "warning")) { #If GARCH(1,1) does not converge save in forecast vector
+    #if(is(fit, "warning")) { #If GARCH(1,1) does not converge save in forecast vector
                              # the 1 step ARIMA forecast and the sd of the residuals
-
+    if(1) {
       forecast_arima = forecast(final.arima,1) #get 1 step forecast
       forecast_arima_mean = forecast_arima[["mean"]] #save the forecast
       sdfar=sd(final.arima[["residuals"]]) #save the standard deviation of the residuals
