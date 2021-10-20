@@ -53,11 +53,13 @@ int main() {
  	TimeSeries *resids;
  	TimeSeries *garch_resids;	
  	ARMAModel *armamodel;
+ 	ARMAModel *finalarma; //just need the pointer, not need to create the model I think
  	GARCHModel *garchmodel;
 
   	//INITIALIZE STUFF
 
  	armamodel = new ARMAModel();
+ 	//finalarma = new ARMAModel();
  	resids = new TimeSeries();
  	garch_resids = new TimeSeries();
  	timeseries = new TimeSeries();
@@ -75,7 +77,7 @@ int main() {
 
  	timeseries->data = data;
  	timeseries->missing = missing;
- 	timeseries->n=198; //this n should be dynamic
+ 	timeseries->n=198;
  
  	n = timeseries->GetN();
  	mean = timeseries->SampleMean();
@@ -105,86 +107,110 @@ int main() {
 
  	Vector phis;
 	Vector thetas;
+	//int ar_p, ma_q;
+	double final_aic = 10000000000; //should be infinite 
+	double current_aic;
+	int final_ar_p, final_ma_q;
 
 	//aquí comienza el for para loopear entre todos los modelos de arma(p,q) 
-	// p>0 y p <=5 y q >=0 y q<=p
+	// p>=0 y p <=5 y q >=0 y q <=5, si p = q = 0 pasar a la siguiente iteracion
 
+ 	for(int ar_p = 0; ar_p < 6; ar_p++){
+ 		for(int ma_q = 0; ma_q < 6; ma_q++){
+ 			if(ar_p == 0 && ma_q == 0){
+ 				continue;
+ 			}
+ 			armamodel->SetOrder(ar_p,ma_q);  //aqui cambiar (1,0) por (p,q)
+			armamodel->SetFracDiff(0);
+			int ttt= armamodel->FitModel(timeseries,1,1000,NULL,NULL,msg,supplemental,get_parameter_cov);
+ 			current_aic = armamodel->GetAICC();
+ 			if (current_aic < final_aic){
+ 				final_aic = current_aic;
+ 				final_ar_p = ar_p;
+ 				final_ma_q = ma_q;
+ 				finalarma = armamodel;
+ 			}
+
+ 		}
+ 	}
+
+ 	printf("final ar coefficient: %i\n", final_ar_p);
+ 	printf("final ma coefficient: %i\n", final_ma_q);
+// 	armamodel->SetOrder(5,5);  //aqui cambiar (1,0) por (p,q)
+// 	armamodel->SetFracDiff(0);
+	
+// 	int ttt= armamodel->FitModel(timeseries,1,1000,NULL,NULL,msg,supplemental,get_parameter_cov);
+	
+// 	arma_sd = armamodel -> GetSigma();
+// 	arma_mean = armamodel -> GetMean();
  	
-	armamodel->SetOrder(5,5);  //aqui cambiar (1,0) por (p,q)
-	armamodel->SetFracDiff(0);
+
 	
-	int ttt= armamodel->FitModel(timeseries,1,1000,NULL,NULL,msg,supplemental,get_parameter_cov);
-	
-	arma_sd = armamodel -> GetSigma();
-	arma_mean = armamodel -> GetMean();
+// 	printf("\n");
+
+//  	printf("ARMA Mean: %f\n", arma_mean);
+//  	printf("ARMA sigma: %f\n", arma_sd);
  	
+// 	printf("\n");
+
+// 	armamodel->GetCoefficients(phis,thetas);
+// 	printf("AR: %f\n", phis[0]);
+// 	printf("MA: %f\n", thetas[0]);
+
+// 	double lll = armamodel -> GetLogLikelihood();
+// 	double aic = armamodel->GetAICC();
+
+// 	TimeSeries *not_norm_resids;
+// 	not_norm_resids = new TimeSeries();
+// 	armamodel->ComputeStdResiduals(timeseries, resids);
+// 	armamodel->ComputeResiduals(timeseries, not_norm_resids);
+
+
+// 	double *test2 = resids->GetData();
+// 	printf("first resids: %f\n", *test2);
+
+// 	// resids_garch->SetOrder(1,1);
+// 	// resids_garch->SetFracDiff(0);
+// 	// int qqq = armamodel->FitModel(resids,1,1000,NULL,NULL,msg,supplemental,get_parameter_cov);
+// 	// Vector phis1;
+// 	// Vector thetas1;
+
+// 	// resids_garch->GetCoefficients(phis1,thetas1);
+// 	// printf("GARCH ALPHA: %f\n", phis1[0]);
+
+
+// 	printf("loglikelihood: %f\n", lll);
+// 	printf("aic: %f\n", aic);
+
+// printf("\n");
+
+// 	//GARCH Stuff
 
 	
-	printf("\n");
+// 	Vector phis_g;
+// 	Vector thetas_g;
+// 	double muu=0;
+// 	garchmodel -> SetParameters(1,1,phis_g,thetas_g,muu);
 
- 	printf("ARMA Mean: %f\n", arma_mean);
- 	printf("ARMA sigma: %f\n", arma_sd);
- 	
-	printf("\n");
+// 	garchmodel -> FitModel(resids,1,1000,NULL,NULL,msg,supplemental,get_parameter_cov);
 
-	armamodel->GetCoefficients(phis,thetas);
-	printf("AR: %f\n", phis[0]);
-	printf("MA: %f\n", thetas[0]);
+// 	int pg,qg;
+// 	double mug, sd_g;
+// 	Vector asg, bsg;
 
-	double lll = armamodel -> GetLogLikelihood();
-	double aic = armamodel->GetAICC();
+// 	garchmodel -> GetParameters(pg, qg, asg, bsg, mug);	
+// 	garchmodel -> ComputeStdResiduals(not_norm_resids,garch_resids);
 
-	TimeSeries *not_norm_resids;
-	not_norm_resids = new TimeSeries();
-	armamodel->ComputeStdResiduals(timeseries, resids);
-	armamodel->ComputeResiduals(timeseries, not_norm_resids);
+// 	Vector garch_resids_acfs(1);
+// 	garch_resids -> ComputeSampleACF(&garch_resids_acfs, NULL, 0);
 
-
-	double *test2 = resids->GetData();
-	printf("first resids: %f\n", *test2);
-
-	// resids_garch->SetOrder(1,1);
-	// resids_garch->SetFracDiff(0);
-	// int qqq = armamodel->FitModel(resids,1,1000,NULL,NULL,msg,supplemental,get_parameter_cov);
-	// Vector phis1;
-	// Vector thetas1;
-
-	// resids_garch->GetCoefficients(phis1,thetas1);
-	// printf("GARCH ALPHA: %f\n", phis1[0]);
-
-
-	printf("loglikelihood: %f\n", lll);
-	printf("aic: %f\n", aic);
-
-printf("\n");
-
-	//GARCH Stuff
-
+// 	sd_g = sqrt(garch_resids_acfs[0]);
 	
-	Vector phis_g;
-	Vector thetas_g;
-	double muu=0;
-	garchmodel -> SetParameters(1,1,phis_g,thetas_g,muu);
-
-	garchmodel -> FitModel(resids,1,1000,NULL,NULL,msg,supplemental,get_parameter_cov);
-
-	int pg,qg;
-	double mug, sd_g;
-	Vector asg, bsg;
-
-	garchmodel -> GetParameters(pg, qg, asg, bsg, mug);	
-	garchmodel -> ComputeStdResiduals(not_norm_resids,garch_resids);
-
-	Vector garch_resids_acfs(1);
-	garch_resids -> ComputeSampleACF(&garch_resids_acfs, NULL, 0);
-
-	sd_g = sqrt(garch_resids_acfs[0]);
-	
-	printf("p garch:%i\n", pg);
-	printf("q garch:%i\n", qg);
-	printf("mu garch:%f\n", mug);
-	printf("garch ALPHA: %f\n", asg[0]);
-	printf("garch BETA: %f\n", bsg[0]);
+// 	printf("p garch:%i\n", pg);
+// 	printf("q garch:%i\n", qg);
+// 	printf("mu garch:%f\n", mug);
+// 	printf("garch ALPHA: %f\n", asg[0]);
+// 	printf("garch BETA: %f\n", bsg[0]);
 
 
 ////// FORECAST STUFF ////////
@@ -193,7 +219,7 @@ printf("\n");
 	double *fmse; 
 	fret = new double();
 	fmse = new double();
-	armamodel -> Forecast(timeseries,1, fret, fmse);
+	finalarma -> Forecast(timeseries,1, fret, fmse);
 	printf("\n");
 	printf("fret: %f\n", *fret);
 	printf("fmse: %f\n", *fmse);
@@ -205,17 +231,17 @@ printf("\n");
 	gfmse = new double();
 
 
-	garchmodel -> Forecast(timeseries,1, gfret, gfmse);
-	printf("gfret: %f\n", *gfret);
-	printf("gfmse: %f\n", *gfmse);
-	printf("\n");
+	// garchmodel -> Forecast(timeseries,1, gfret, gfmse);
+	// printf("gfret: %f\n", *gfret);
+	// printf("gfmse: %f\n", *gfmse);
+	// printf("\n");
 
 
-	double final_forecast;
+	// double final_forecast;
 	
-	final_forecast = *fret + *gfret;
-	printf("garch sd: %f\n", sd_g);
-	printf("final_forecast: %f\n", final_forecast);
+	// final_forecast = *fret + *gfret;
+	// printf("garch sd: %f\n", sd_g);
+	// printf("final_forecast: %f\n", final_forecast);
 
 
 
